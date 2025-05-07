@@ -4,8 +4,8 @@ BuildJPEG/output/
 BuildLZO/lzo-2.10/
 BuildLZO/lzo-2.10.tar.gz
 BuildLZO/output/
-BuildPNG/libpng-1.6.37/
-BuildPNG/libpng-1.6.37.tar.gz
+BuildPNG/libpng-*/
+BuildPNG/libpng-*.tar.gz
 BuildPNG/output/
 BuildSASL/cyrus-sasl/
 BuildSASL/output/

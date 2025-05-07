@@ -1,11 +1,15 @@
 #!/bin/zsh
 
+OPENSSL_PLATFORM=Mac
+
 set -ex
 
-git clone https://github.com/jasonacox/Build-OpenSSL-cURL.git
-cd Build-OpenSSL-cURL
-./build.sh
-cd ..
+if [ ! -d "Build-OpenSSL-cURL" ]; then
+    git clone https://github.com/jasonacox/Build-OpenSSL-cURL.git
+    cd Build-OpenSSL-cURL
+    ./build.sh -p macos -y
+    cd ..
+fi
 cd BuildJPEG
 ./build.sh
 cd ..
@@ -15,9 +19,9 @@ cd ..
 cd BuildPNG
 ./build.sh
 cd ..
-cd BuildSASL
-./build.sh
-cd ..
+##cd BuildSASL
+##./build.sh
+##cd ..
 
 git clone https://github.com/LibVNC/libvncserver.git
 WORKDING_DIR="$(dirname "$0")/libvncserver"
@@ -28,14 +32,13 @@ fi
 
 cd "$WORKDING_DIR"
 WORKDING_DIR=$(pwd)
-patch -s -p0 < ../libvncserver.patch
+patch -s -p0 -Vnone < "../libvncserver.patch"
 
 git clean -fdx
 
 cmake -G Xcode -B build \
     -DBUILD_SHARED_LIBS=OFF \
     -DCMAKE_INSTALL_PREFIX=${WORKDING_DIR}/../output \
-    -DCMAKE_SYSTEM_NAME=iOS \
     -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
     -DWITH_EXAMPLES=OFF \
     -DWITH_TESTS=PFF \
@@ -45,37 +48,36 @@ cmake -G Xcode -B build \
     -DJPEG_INCLUDE_DIR=$(realpath ../BuildJPEG/output/include) \
     -DPNG_LIBRARY=$(realpath ../BuildPNG/output/lib/libpng16.a) \
     -DPNG_PNG_INCLUDE_DIR=$(realpath ../BuildPNG/output/include) \
-    -DOPENSSL_LIBRARIES=$(realpath ../Build-OpenSSL-cURL/openssl/iOS/lib) \
-    -DOPENSSL_CRYPTO_LIBRARY=$(realpath ../Build-OpenSSL-cURL/openssl/iOS/lib/libcrypto.a) \
-    -DOPENSSL_SSL_LIBRARY==$(realpath ../Build-OpenSSL-cURL/openssl/iOS/lib/libssl.a) \
-    -DOPENSSL_INCLUDE_DIR=$(realpath ../Build-OpenSSL-cURL/openssl/iOS/include) \
-    -DLIBSASL2_LIBRARIES=$(realpath ../BuildSASL/output/lib) \
-    -DSASL2_INCLUDE_DIR=$(realpath ../BuildSASL/output/include)
+    -DOPENSSL_LIBRARIES=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib) \
+    -DOPENSSL_CRYPTO_LIBRARY=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libcrypto.a) \
+    -DOPENSSL_SSL_LIBRARY=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libssl.a) \
+    -DOPENSSL_INCLUDE_DIR=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/include)
 
-cd build
-patch -s -p0 < ../../libvncserver-build.patch
-cd ..
+# This patch doesn't seem relevant anymore. TODO: check & remove if not needed.
+##cd build
+##patch -s -p0 -Vnone < "../../libvncserver-build.patch"
+##cd ..
 
 xcodebuild clean build \
     -project build/libvncserver.xcodeproj \
     -scheme ALL_BUILD \
     -configuration Release \
-    -destination 'generic/platform=iOS' \
+    -destination 'generic/platform=macos' \
     CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" \
     STRIP_INSTALLED_PRODUCT=NO COPY_PHASE_STRIP=NO UNSTRIPPED_PRODUCT=NO \
     | xcpretty
 
 cd build
-ln -s Release-iphoneos Release
+ln -s Release-macos Release
 cmake -P cmake_install.cmake
 
 cd "$WORKDING_DIR/.."
 mkdir dist
 mkdir dist/lib
 mkdir dist/include
-lipo -thin arm64 Build-OpenSSL-cURL/openssl/iOS/lib/libcrypto.a -output dist/lib/libcrypto.a
-lipo -thin arm64 Build-OpenSSL-cURL/openssl/iOS/lib/libssl.a -output dist/lib/libssl.a
-cp -r Build-OpenSSL-cURL/openssl/iOS/include/* dist/include
+lipo -thin arm64 Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libcrypto.a -output dist/lib/libcrypto.a
+lipo -thin arm64 Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libssl.a -output dist/lib/libssl.a
+cp -r Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/include/* dist/include
 cp BuildJPEG/output/lib/libjpeg.a dist/lib/libjpeg.a
 cp BuildJPEG/output/lib/libturbojpeg.a dist/lib/libturbojpeg.a
 cp -r BuildJPEG/output/include/* dist/include
@@ -84,8 +86,8 @@ cp -r BuildLZO/output/include/* dist/include
 cp BuildPNG/output/lib/libpng16.a dist/lib/libpng16.a
 cp BuildPNG/output/lib/libpng16.a dist/lib/libpng.a
 cp -r BuildPNG/output/include/* dist/include
-cp BuildSASL/output/lib/libsasl2.a dist/lib/libsasl2.a
-cp -r BuildSASL/output/include/* dist/include
+#cp BuildSASL/output/lib/libsasl2.a dist/lib/libsasl2.a
+#cp -r BuildSASL/output/include/* dist/include
 cp output/lib/libvncserver.a dist/lib/libvncserver.a
 cp output/lib/libvncclient.a dist/lib/libvncclient.a
 cp -r output/include/* dist/include
