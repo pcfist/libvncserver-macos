@@ -41,7 +41,7 @@ cmake -G Xcode -B build \
     -DCMAKE_INSTALL_PREFIX=${WORKDING_DIR}/../output \
     -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
     -DWITH_EXAMPLES=OFF \
-    -DWITH_TESTS=PFF \
+    -DWITH_TESTS=OFF \
     -DLZO_LIBRARIES=$(realpath ../BuildLZO/output/lib) \
     -DLZO_INCLUDE_DIR=$(realpath ../BuildLZO/output/include) \
     -DJPEG_LIBRARY=$(realpath ../BuildJPEG/output/lib/libturbojpeg.a) \
