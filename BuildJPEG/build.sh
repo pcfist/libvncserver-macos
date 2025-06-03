@@ -37,6 +37,7 @@ EOF
 
 cmake -G Xcode -B build \
     -DENABLE_SHARED=0 \
+    -DWITH_JPEG8=1 \
     -DCMAKE_INSTALL_PREFIX=${WORKDING_DIR}/../output \
     -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake
 
