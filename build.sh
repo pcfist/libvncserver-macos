@@ -1,10 +1,10 @@
 #!/bin/zsh
 
-OPENSSL_PLATFORM=Mac
+OPENSSL_PLATFORM="" # Mac
 
 set -ex
 
-if [ ! -d "Build-OpenSSL-cURL" ]; then
+if [ ! -z $(OPENSSL_PLATFORM)  -a  ! -d "Build-OpenSSL-cURL" ]; then
     git clone https://github.com/jasonacox/Build-OpenSSL-cURL.git
     cd Build-OpenSSL-cURL
     ./build.sh -p macos -y
@@ -48,10 +48,14 @@ cmake -G Xcode -B build \
     -DJPEG_INCLUDE_DIR=$(realpath ../BuildJPEG/output/include) \
     -DPNG_LIBRARY=$(realpath ../BuildPNG/output/lib/libpng16.a) \
     -DPNG_PNG_INCLUDE_DIR=$(realpath ../BuildPNG/output/include) \
-    -DOPENSSL_LIBRARIES=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib) \
-    -DOPENSSL_CRYPTO_LIBRARY=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libcrypto.a) \
-    -DOPENSSL_SSL_LIBRARY=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libssl.a) \
-    -DOPENSSL_INCLUDE_DIR=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/include)
+    -DWITH_OPENSSL=OFF \
+    -DWITH_GCRYPT=OFF \
+    -DWITH_GNUTLS=OFF
+
+#    -DOPENSSL_LIBRARIES=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib) \
+#    -DOPENSSL_CRYPTO_LIBRARY=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libcrypto.a) \
+#    -DOPENSSL_SSL_LIBRARY=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libssl.a) \
+#    -DOPENSSL_INCLUDE_DIR=$(realpath ../Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/include)
 
 # This patch doesn't seem relevant anymore. TODO: check & remove if not needed.
 ##cd build
@@ -75,9 +79,9 @@ cd "$WORKDING_DIR/.."
 mkdir dist
 mkdir dist/lib
 mkdir dist/include
-lipo -thin arm64 Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libcrypto.a -output dist/lib/libcrypto.a
-lipo -thin arm64 Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libssl.a -output dist/lib/libssl.a
-cp -r Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/include/* dist/include
+#lipo -thin arm64 Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libcrypto.a -output dist/lib/libcrypto.a
+#lipo -thin arm64 Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/lib/libssl.a -output dist/lib/libssl.a
+#cp -r Build-OpenSSL-cURL/openssl/${OPENSSL_PLATFORM}/include/* dist/include
 cp BuildJPEG/output/lib/libjpeg.a dist/lib/libjpeg.a
 cp BuildJPEG/output/lib/libturbojpeg.a dist/lib/libturbojpeg.a
 cp -r BuildJPEG/output/include/* dist/include
