@@ -2,8 +2,15 @@
 
 set -ex
 
-git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
 WORKDING_DIR="$(dirname "$0")/libjpeg-turbo"
+
+# Check if already built.
+if [ -d "$WORKDING_DIR" -a -f "output/lib/libturbojpeg.a" ]; then
+    echo "libturbojpeg: Already up to date"
+    return
+fi
+
+git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git
 
 # check if working dir is all right
 if [ ! -d "$WORKDING_DIR" ]; then

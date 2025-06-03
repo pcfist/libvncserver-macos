@@ -1,10 +1,15 @@
 #!/bin/zsh
 
 set -ex
+WORKDING_DIR="$(dirname "$0")/lzo-2.10"
+
+# Check if already built.
+if [ -d "$WORKDING_DIR" -a -f "output/lib/liblzo2.a" ]; then
+    return
+fi
 
 wget https://www.oberhumer.com/opensource/lzo/download/lzo-2.10.tar.gz
 tar xvf lzo-2.10.tar.gz lzo-2.10
-WORKDING_DIR="$(dirname "$0")/lzo-2.10"
 
 # check if working dir is all right
 if [ ! -d "$WORKDING_DIR" ]; then

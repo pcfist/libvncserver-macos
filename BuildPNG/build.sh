@@ -3,11 +3,16 @@
 set -ex
 
 LIBPNG_VER=1.6.48
-
-wget https://unlimited.dl.sourceforge.net/project/libpng/libpng16/${LIBPNG_VER}/libpng-${LIBPNG_VER}.tar.gz
-
-tar xvf libpng-${LIBPNG_VER}.tar.gz libpng-${LIBPNG_VER}
 WORKDING_DIR="$(dirname "$0")/libpng-${LIBPNG_VER}"
+
+# Check if already built.
+if [ -d "$WORKDING_DIR" -a -f "output/lib/libpng.a" ]; then
+    return
+fi
+
+wget https://netcologne.dl.sourceforge.net/project/libpng/libpng16/${LIBPNG_VER}/libpng-${LIBPNG_VER}.tar.xz
+
+tar xvf libpng-${LIBPNG_VER}.tar.xz libpng-${LIBPNG_VER}
 
 # check if working dir is all right
 if [ ! -d "$WORKDING_DIR" ]; then
