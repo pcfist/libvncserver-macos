@@ -5,6 +5,11 @@ set -ex
 # Disable OpenSSL build for now.
 OPENSSL_PLATFORM="" # Mac
 
+export XCPRETTY_CMD=tee
+if which xcpretty; then
+    export XCPRETTY_CMD=xcpretty
+fi
+
 # Make sure current working dir matches script location.
 # This will allow our script to run correctly even when executed from any directory.
 BASE_DIR="$(realpath "$(dirname "$0")")"
@@ -62,7 +67,7 @@ xcodebuild clean build \
     -destination 'generic/platform=macos' \
     CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" \
     STRIP_INSTALLED_PRODUCT=NO COPY_PHASE_STRIP=NO UNSTRIPPED_PRODUCT=NO \
-    | xcpretty
+    | $XCPRETTY_CMD
 
 cd build
 ln -s Release-macos Release

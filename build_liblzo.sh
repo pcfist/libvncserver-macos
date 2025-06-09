@@ -30,7 +30,7 @@ xcodebuild build \
     -destination 'generic/platform=macos' \
     CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" \
     STRIP_INSTALLED_PRODUCT=NO COPY_PHASE_STRIP=NO UNSTRIPPED_PRODUCT=NO \
-    | xcpretty
+    | $(XCPRETTY_CMD)
 
 cd build
 cmake -P cmake_install.cmake
