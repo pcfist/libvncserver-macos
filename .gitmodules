@@ -1,0 +1,12 @@
+[submodule "liblzo"]
+	path = liblzo
+	url = https://github.com/nemequ/lzo.git
+[submodule "libpng"]
+	path = libpng
+	url = https://github.com/pnggroup/libpng.git
+[submodule "libjpeg"]
+	path = libjpeg
+	url = https://github.com/libjpeg-turbo/libjpeg-turbo.git
+[submodule "libvncserver"]
+	path = libvncserver
+	url = https://github.com/LibVNC/libvncserver.git

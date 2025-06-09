@@ -1,15 +1,14 @@
 #!/bin/zsh
 
 set -ex
-WORKDING_DIR="$(dirname "$0")/lzo-2.10"
+
+WORKDING_DIR="$(dirname "$0")/libjpeg"
 
 # Check if already built.
-if [ -d "$WORKDING_DIR" -a -f "output/lib/liblzo2.a" ]; then
+if [ -d "$WORKDING_DIR" -a -f "output/lib/libturbojpeg.a" ]; then
+    echo "libturbojpeg: Already up to date"
     return
 fi
-
-wget https://www.oberhumer.com/opensource/lzo/download/lzo-2.10.tar.gz
-tar xvf lzo-2.10.tar.gz lzo-2.10
 
 # check if working dir is all right
 if [ ! -d "$WORKDING_DIR" ]; then
@@ -19,15 +18,24 @@ fi
 cd "$WORKDING_DIR"
 WORKDING_DIR=$(pwd)
 
-export CFLAGS="-Wall"
+git clean -fdx
+
+export CFLAGS="-Wall -arch arm64 -miphoneos-version-min=13.0 -funwind-tables"
+
+cat <<EOF >toolchain.cmake
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 13.0)
+set(CMAKE_C_COMPILER /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang)
+EOF
 
 cmake -G Xcode -B build \
+    -DENABLE_SHARED=0 \
+    -DWITH_JPEG8=1 \
     -DCMAKE_INSTALL_PREFIX=${WORKDING_DIR}/../output \
-    -DBUILD_SHARED_LIBS=OFF \
-    -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0
+    -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake
 
 xcodebuild build \
-    -project build/lzo.xcodeproj \
+    -project build/libjpeg-turbo.xcodeproj \
     -scheme ALL_BUILD \
     -configuration Release \
     -destination 'generic/platform=macos' \
@@ -36,4 +44,5 @@ xcodebuild build \
     | xcpretty
 
 cd build
+ln -s Release-macos Release
 cmake -P cmake_install.cmake

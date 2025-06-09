@@ -10,7 +10,6 @@ BuildPNG/output/
 BuildSASL/cyrus-sasl/
 BuildSASL/output/
 dist/
-libvncserver/
 output/
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,xcode
