@@ -1,10 +1,17 @@
 #!/bin/zsh
 
-OPENSSL_PLATFORM="" # Mac
-
 set -ex
 
-if [ ! -z $(OPENSSL_PLATFORM)  -a  ! -d "Build-OpenSSL-cURL" ]; then
+# Disable OpenSSL build for now.
+OPENSSL_PLATFORM="" # Mac
+
+# Make sure current working dir matches script location.
+# This will allow our script to run correctly even when executed from any directory.
+BASE_DIR="$(realpath "$(dirname "$0")")"
+cd "${BASE_DIR}"
+
+# Build OpenSSL if required.
+if [ ! -z "${OPENSSL_PLATFORM}"  -a  ! -d "Build-OpenSSL-cURL" ]; then
     git clone https://github.com/jasonacox/Build-OpenSSL-cURL.git
     cd Build-OpenSSL-cURL
     ./build.sh -p macos -y
@@ -16,7 +23,7 @@ fi
 ./build_libpng.sh
 ##./build_libsasl.sh
 
-WORKDING_DIR="$(dirname "$0")/libvncserver"
+WORKDING_DIR="${BASE_DIR}/libvncserver"
 if [ ! -d "$WORKDING_DIR" ]; then
     mkdir -p "$WORKDING_DIR"
 fi
@@ -29,7 +36,7 @@ git clean -fdx
 
 cmake -G Xcode -B build \
     -DBUILD_SHARED_LIBS=OFF \
-    -DCMAKE_INSTALL_PREFIX=${WORKDING_DIR}/../output \
+    -DCMAKE_INSTALL_PREFIX=${BASE_DIR}/output \
     -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
     -DWITH_EXAMPLES=OFF \
     -DWITH_TESTS=OFF \
@@ -61,7 +68,7 @@ cd build
 ln -s Release-macos Release
 cmake -P cmake_install.cmake
 
-cd "$WORKDING_DIR/.."
+cd "$BASE_DIR"
 mkdir -p dist
 mkdir -p dist/lib
 mkdir -p dist/include
